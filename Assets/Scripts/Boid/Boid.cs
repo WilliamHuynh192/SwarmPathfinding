@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Interfaces;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -14,10 +15,18 @@ namespace Boid {
     public class Boid : MonoBehaviour {
         [field: SerializeField] public Multipliers Multipliers { private get; set; }
         [field: SerializeField] public float Speed { private get; set; }
+        [SerializeField] private float perception;
+
+        [SerializeField] private Rigidbody rb;
+
+        private INeighbours _neighbours;
+
+        private void Start() {
+            rb.useGravity = false;
+        }
 
         private void Update() {
-            var neighbours = GetNeighbours();
-            transform.position += GetVelocity(neighbours) * Time.deltaTime;
+            rb.velocity = GetVelocity(_neighbours.Get(transform.position, perception)) * Time.deltaTime;
         }
 
         private Vector3 GetVelocity(List<Boid> neighbours) {
@@ -36,8 +45,5 @@ namespace Boid {
             return Vector3.zero;
         }
 
-        private List<Boid> GetNeighbours() {
-            return null;
-        }
     }
 }

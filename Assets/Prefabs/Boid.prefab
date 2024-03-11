@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 2326342615714041732}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.013956, y: 9.783141, z: 31.621262}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51,7 +51,8 @@ MonoBehaviour:
     <Alignment>k__BackingField: 0
     <Cohesion>k__BackingField: 0
     <Separation>k__BackingField: 0
-  <Speed>k__BackingField: 4.22
+  <Speed>k__BackingField: 0
+  rb: {fileID: 0}
 --- !u!33 &2777642928430256636
 MeshFilter:
   m_ObjectHideFlags: 0
