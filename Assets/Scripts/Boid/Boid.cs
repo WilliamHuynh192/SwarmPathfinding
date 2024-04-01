@@ -80,7 +80,7 @@ namespace Boid {
 
         private Vector3 Separation(List<Boid> neighbours) {
             var separation = Vector3.zero;
-            Debug.Log(neighbours.Count);
+            // Debug.Log(neighbours.Count);
             foreach (var boid in neighbours) {
                 if (this != boid) {
                     var offset = transform.position - boid.transform.position;
