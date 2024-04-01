@@ -48,11 +48,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <Multipliers>k__BackingField:
-    <Alignment>k__BackingField: 0
-    <Cohesion>k__BackingField: 0
-    <Separation>k__BackingField: 0
-  <Speed>k__BackingField: 0
-  rb: {fileID: 0}
+    <Alignment>k__BackingField: 3
+    <Cohesion>k__BackingField: 3
+    <Separation>k__BackingField: 3
+  <Speed>k__BackingField: 5
+  <Flock>k__BackingField: {fileID: 0}
+  perception: 5
 --- !u!33 &2777642928430256636
 MeshFilter:
   m_ObjectHideFlags: 0

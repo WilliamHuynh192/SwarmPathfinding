@@ -15,23 +15,25 @@ namespace Boid {
     public class Boid : MonoBehaviour {
         [field: SerializeField] public Multipliers Multipliers { private get; set; }
         [field: SerializeField] public float Speed { private get; set; }
+        [field: SerializeField] public Transform Flock { private get; set; }
+        
+        private INeighbours _neighbours;
         [SerializeField] private float perception;
 
-        public Vector3 Acceleration { get; private set; }
-        public Vector3 Velocity { get; private set; }
-        private INeighbours _neighbours;
+        private Vector3 Velocity { get; } = Vector3.zero;
 
         private void Start() {
             Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
+            _neighbours = Flock.GetComponent<INeighbours>();
         }
 
         private void Update() {
-            transform.position += GetVelocity(_neighbours.Get(transform.position, perception)) * Time.deltaTime;
+            Debug.Log(transform.position);
+            transform.position += GetAcceleration(_neighbours.Get(transform.position, perception)) * Time.deltaTime;
         }
 
-        private Vector3 GetVelocity(List<Boid> neighbours) {
-            return Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion +
-                   Separation(neighbours) * Multipliers.Separation;
+        private Vector3 GetAcceleration(List<Boid> neighbours) {
+            return Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion + Separation(neighbours) * Multipliers.Separation;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
@@ -56,7 +58,7 @@ namespace Boid {
             var cohesion = Vector3.zero;
             foreach (var boid in neighbours) {
                 if (this != boid) {
-                    cohesion  += boid.transform.position;
+                    cohesion += boid.transform.position;
                 }
             }
             if (neighbours.Count > 0) {

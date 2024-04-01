@@ -3,11 +3,11 @@ using System.Linq;
 using UnityEngine;
 
 namespace Interfaces {
-    class Neighbours : INeighbours {
-        private List<Boid.Boid> _boids;
+    class Neighbours : MonoBehaviour, INeighbours {
+        [SerializeField] private Boid.Boid[] _boids;
 
-        public Neighbours(List<Boid.Boid> boids) {
-            _boids = boids;
+        private void Start() {
+            _boids = FindObjectsByType<Boid.Boid>(FindObjectsSortMode.None);
         }
 
         public List<Boid.Boid> Get(Vector3 position, float perception) {
