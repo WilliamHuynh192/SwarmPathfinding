@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7669673662817284812}
   m_Layer: 0
   m_Name: Boid
-  m_TagString: Untagged
+  m_TagString: boid
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -49,11 +49,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Multipliers>k__BackingField:
     <Alignment>k__BackingField: 3
-    <Cohesion>k__BackingField: 3
-    <Separation>k__BackingField: 3
-  <Speed>k__BackingField: 5
+    <Cohesion>k__BackingField: 2
+    <Separation>k__BackingField: 2
+  <Speed>k__BackingField: 10
   <Flock>k__BackingField: {fileID: 0}
   perception: 5
+  <Velocity>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!33 &2777642928430256636
 MeshFilter:
   m_ObjectHideFlags: 0

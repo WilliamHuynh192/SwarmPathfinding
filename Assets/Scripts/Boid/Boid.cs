@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Interfaces;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace Boid {
     [Serializable]
@@ -20,24 +21,29 @@ namespace Boid {
         private INeighbours _neighbours;
         [SerializeField] private float perception;
 
-        private Vector3 Velocity { get; } = Vector3.zero;
+        [field: SerializeField] private Vector3 Velocity { get; set; }
 
         private void Start() {
-            Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
+            // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
+            Velocity = Random.insideUnitSphere;
             _neighbours = Flock.GetComponent<INeighbours>();
         }
 
         private void Update() {
-            Debug.Log(transform.position);
-            transform.position += GetAcceleration(_neighbours.Get(transform.position, perception)) * Time.deltaTime;
+            // Debug.Log(Velocity.magnitude);
+
+            Velocity += GetAcceleration(_neighbours.Get(transform.position, perception));
+            Velocity = Vector3.ClampMagnitude(Velocity, Speed );
+            transform.position += Velocity * Time.deltaTime;
+            Bounds();
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
-            return Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion + Separation(neighbours) * Multipliers.Separation;
+            return Separation(neighbours) * Multipliers.Separation + Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
-            Vector3 alignment = Vector3.zero;
+            var alignment = Vector3.zero;
 
             foreach (var boid in neighbours) {
                 if (this != boid) {
@@ -45,10 +51,11 @@ namespace Boid {
                 }
             }
 
-            if (neighbours.Count > 0) {
-                alignment /= neighbours.Count;
+            if (neighbours.Count - 1 > 0) {
+                alignment /= neighbours.Count - 1;
+                alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
-                alignment = Vector3.ClampMagnitude(alignment, Speed);
+                alignment = Vector3.ClampMagnitude(alignment, 0.33f);
             }
 
             return alignment;
@@ -61,28 +68,45 @@ namespace Boid {
                     cohesion += boid.transform.position;
                 }
             }
-            if (neighbours.Count > 0) {
-                cohesion /= neighbours.Count;
+            if (neighbours.Count - 1 > 0) {
+                cohesion /= neighbours.Count - 1;
                 cohesion -= transform.position;
-                cohesion = Vector3.ClampMagnitude(cohesion, Speed);
+                cohesion = cohesion.normalized * Speed;
+                cohesion -= Velocity;
+                cohesion = Vector3.ClampMagnitude(cohesion, 0.33f);
             }
             return cohesion;
         }
 
         private Vector3 Separation(List<Boid> neighbours) {
             var separation = Vector3.zero;
+            Debug.Log(neighbours.Count);
             foreach (var boid in neighbours) {
                 if (this != boid) {
                     var offset = transform.position - boid.transform.position;
                     separation += offset / offset.sqrMagnitude;
                 }
             }
-
-            if (neighbours.Count > 0) {
-                separation /= neighbours.Count;
-                separation = Vector3.ClampMagnitude(separation, Speed);
+            
+            if (neighbours.Count - 1 > 0) {
+                separation /= neighbours.Count - 1;
+                separation = separation.normalized * Speed;
+                separation -= Velocity;
+                separation = Vector3.ClampMagnitude(separation, 0.33f);
             }
+            
             return separation;
+        }
+
+        private void Bounds() {
+            var max = 25;
+            if (transform.position.x > max) transform.position = new Vector3(-max, transform.position.y, transform.position.z);
+            if (transform.position.x < -max) transform.position = new Vector3(max, transform.position.y, transform.position.z);
+            if (transform.position.y > max) transform.position = new Vector3(transform.position.x, -max, transform.position.z);
+            if (transform.position.y < -max) transform.position = new Vector3(transform.position.x, max, transform.position.z);
+            if (transform.position.z > max) transform.position = new Vector3(transform.position.x, transform.position.y, -max);
+            if (transform.position.z < -max) transform.position = new Vector3(transform.position.x, transform.position.y, max);
+
         }
     }
 }
