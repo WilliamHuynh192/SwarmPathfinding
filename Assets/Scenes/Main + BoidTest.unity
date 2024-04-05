@@ -337,7 +337,7 @@ TerrainCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 2
   m_TerrainData: {fileID: 15600000, guid: 338167e647e5d3346aa43750f4034130, type: 2}
@@ -423,8 +423,8 @@ Transform:
   m_GameObject: {fileID: 963886576}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 80, y: 11, z: 52}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -443,7 +443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   count: 100
   boid: {fileID: 2326342615714041732, guid: 576b68c70ea51904398e856b15eb4752, type: 3}
-  bounds: 6.57
+  bounds: {fileID: 2026746660}
   boids: []
 --- !u!1 &1053248919
 GameObject:
@@ -860,7 +860,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scrollSensitivity: 0.53
   fastSpeed: 0.64
-  normalSpeed: 0.15
+  normalSpeed: 0.3
 --- !u!1 &1828957738
 GameObject:
   m_ObjectHideFlags: 0

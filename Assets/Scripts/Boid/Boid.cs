@@ -25,7 +25,7 @@ namespace Boid {
 
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
-            Velocity = Random.insideUnitSphere;
+            Velocity = Flock.position;
             _neighbours = Flock.GetComponent<INeighbours>();
         }
 
@@ -99,7 +99,7 @@ namespace Boid {
         }
 
         private void Bounds() {
-            var max = 25;
+            var max = 1000;
             if (transform.position.x > max) transform.position = new Vector3(-max, transform.position.y, transform.position.z);
             if (transform.position.x < -max) transform.position = new Vector3(max, transform.position.y, transform.position.z);
             if (transform.position.y > max) transform.position = new Vector3(transform.position.x, -max, transform.position.z);

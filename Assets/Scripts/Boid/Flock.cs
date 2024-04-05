@@ -9,12 +9,12 @@ namespace Boid {
     public class Flock : MonoBehaviour, INeighbours {
         [SerializeField] private int count;
         [SerializeField] private GameObject boid;
-        [SerializeField] private float bounds;
+        [SerializeField] private GameObject bounds;
 
         [SerializeField] private List<Boid> boids;
         private void Start() {
             foreach (var i in Enumerable.Range(0, count)) {
-                var instance = Instantiate(boid, Random.insideUnitSphere * bounds, Quaternion.identity);
+                var instance = Instantiate(boid, transform.position, Quaternion.identity);
                 instance.GetComponent<Boid>().Flock = transform;
                 boids.Add(instance.GetComponent<Boid>());
             }
