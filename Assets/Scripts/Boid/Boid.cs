@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Interfaces;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Boid {
@@ -11,6 +11,7 @@ namespace Boid {
         [field: SerializeField] public float Alignment { get; set; }
         [field: SerializeField] public float Cohesion { get; set; }
         [field: SerializeField] public float Separation { get; set; }
+        [field: SerializeField] public float Pathfinding { get; set; }
     }
 
     public class Boid : MonoBehaviour {
@@ -19,7 +20,24 @@ namespace Boid {
         [field: SerializeField] public Transform Flock { private get; set; }
         
         private INeighbours _neighbours;
-        
+        [field: SerializeField] public float Cognitive { get; set; } = .8f;
+        [field: SerializeField] public float Social { get; set; } = .2f;
+        public Vector3 Target { private get; set; }
+
+        private Vector3 PersonalBest { get; set; }
+
+        private Vector3 GlobalBest {
+            get {
+                var neighbors = _neighbours.Get();
+                return neighbors.Aggregate(neighbors.First(), (min, boid) =>
+                        Vector3.Distance(min.PersonalBest, Target) <
+                        Vector3.Distance(boid.PersonalBest, Target)
+                    ? min
+                    : boid,
+                    boid => boid.PersonalBest);
+            }
+        }
+
         private Transform _worldBounds;
         private float _worldBoundsXMax;
         private float _worldBoundsXMin;
@@ -29,8 +47,8 @@ namespace Boid {
         
         [SerializeField] private float perception;
 
-        [field: SerializeField] private Vector3 Velocity { get; set; }
-
+        [field: SerializeField] public Vector3 Velocity { get; private set; }
+        
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             
@@ -69,19 +87,34 @@ namespace Boid {
             Velocity = new Vector3(randomX, randomY, randomZ);
             
             _neighbours = Flock.GetComponent<INeighbours>();
+            PersonalBest = transform.position;
         }
 
         private void Update() {
-            // Debug.Log(Velocity.magnitude);
 
             Velocity += GetAcceleration(_neighbours.Get(transform.position, perception));
-            Velocity = Vector3.ClampMagnitude(Velocity, Speed );
+            Velocity = Vector3.ClampMagnitude(Velocity, Speed);
             transform.position += Velocity * Time.deltaTime;
+
+            if (Vector3.Distance(transform.position, Target) < Vector3.Distance(PersonalBest, Target)) {
+                PersonalBest = transform.position;
+            }
+            
             Bounds();
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
-            return Separation(neighbours) * Multipliers.Separation + Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion;
+            return Separation(neighbours) * Multipliers.Separation + 
+                   Alignment(neighbours) * Multipliers.Alignment + 
+                   Cohesion(neighbours) * Multipliers.Cohesion + 
+                   Pathfinding(neighbours) * Multipliers.Pathfinding;
+        }
+
+        private Vector3 Pathfinding(List<Boid> neighbours) {
+            var global = Social * (GlobalBest - transform.position);
+            var personal = Cognitive * (PersonalBest - transform.position);
+            
+            return personal + global;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
@@ -99,7 +132,6 @@ namespace Boid {
                 alignment -= Velocity;
                 alignment = Vector3.ClampMagnitude(alignment, 0.33f);
             }
-
             return alignment;
         }
 
@@ -122,7 +154,6 @@ namespace Boid {
 
         private Vector3 Separation(List<Boid> neighbours) {
             var separation = Vector3.zero;
-            // Debug.Log(neighbours.Count);
             foreach (var boid in neighbours) {
                 if (this != boid) {
                     var offset = transform.position - boid.transform.position;
@@ -136,10 +167,11 @@ namespace Boid {
                 separation -= Velocity;
                 separation = Vector3.ClampMagnitude(separation, 0.33f);
             }
-            
             return separation;
         }
 
+        
+        
         private void Bounds() {
             if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
             if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
