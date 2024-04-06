@@ -2,15 +2,29 @@ using System;
 using System.Collections.Generic;
 using Interfaces;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Boid {
+    [Serializable]
+    public class ParticleSwarm {
+        [field: SerializeField] public float Cognitive { get; set; }
+        [field: SerializeField] public float Social { get; set; }
+
+        public Vector3 GlobalBest { private set; get; }
+        public Vector3 PersonalBest { private set; get; }
+        
+        public void Update() {
+            
+        }
+    }
+    
+    
     [Serializable]
     public struct Multipliers {
         [field: SerializeField] public float Alignment { get; set; }
         [field: SerializeField] public float Cohesion { get; set; }
         [field: SerializeField] public float Separation { get; set; }
+        [field: SerializeField] public float Pathfinding { get; set; }
     }
 
     public class Boid : MonoBehaviour {
@@ -72,7 +86,6 @@ namespace Boid {
         }
 
         private void Update() {
-            // Debug.Log(Velocity.magnitude);
 
             Velocity += GetAcceleration(_neighbours.Get(transform.position, perception));
             Velocity = Vector3.ClampMagnitude(Velocity, Speed );
@@ -81,7 +94,23 @@ namespace Boid {
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
-            return Separation(neighbours) * Multipliers.Separation + Alignment(neighbours) * Multipliers.Alignment + Cohesion(neighbours) * Multipliers.Cohesion;
+            return Separation(neighbours) * Multipliers.Separation + 
+                   Alignment(neighbours) * Multipliers.Alignment + 
+                   Cohesion(neighbours) * Multipliers.Cohesion + 
+                   Pathfinding(neighbours) * Multipliers.Pathfinding;
+        }
+
+        private Vector3 Pathfinding(List<Boid> neighbours) {
+            var pathfinding = Vector3.zero;
+
+            foreach (var boid in neighbours) {
+                if (this != boid) {
+                    
+                }
+            }
+            
+            
+            return pathfinding;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
@@ -99,7 +128,6 @@ namespace Boid {
                 alignment -= Velocity;
                 alignment = Vector3.ClampMagnitude(alignment, 0.33f);
             }
-
             return alignment;
         }
 
@@ -122,7 +150,6 @@ namespace Boid {
 
         private Vector3 Separation(List<Boid> neighbours) {
             var separation = Vector3.zero;
-            // Debug.Log(neighbours.Count);
             foreach (var boid in neighbours) {
                 if (this != boid) {
                     var offset = transform.position - boid.transform.position;
@@ -136,7 +163,6 @@ namespace Boid {
                 separation -= Velocity;
                 separation = Vector3.ClampMagnitude(separation, 0.33f);
             }
-            
             return separation;
         }
 
