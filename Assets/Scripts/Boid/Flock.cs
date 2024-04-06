@@ -23,5 +23,9 @@ namespace Boid {
         public List<Boid> Get(Vector3 position, float perception) {
             return boids.Where(i => Vector3.Distance(i.transform.position, position) < perception).ToList();
         }
+
+        public List<Boid> Get() {
+            return boids;
+        }
     }
 }

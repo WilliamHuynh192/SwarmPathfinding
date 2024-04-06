@@ -1,24 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Interfaces;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Boid {
-    [Serializable]
-    public class ParticleSwarm {
-        [field: SerializeField] public float Cognitive { get; set; }
-        [field: SerializeField] public float Social { get; set; }
-
-        public Vector3 GlobalBest { private set; get; }
-        public Vector3 PersonalBest { private set; get; }
-        
-        public void Update() {
-            
-        }
-    }
-    
-    
     [Serializable]
     public struct Multipliers {
         [field: SerializeField] public float Alignment { get; set; }
@@ -33,7 +20,24 @@ namespace Boid {
         [field: SerializeField] public Transform Flock { private get; set; }
         
         private INeighbours _neighbours;
-        
+        [field: SerializeField] public float Cognitive { get; set; } = .8f;
+        [field: SerializeField] public float Social { get; set; } = .2f;
+        public Vector3 Target { private get; set; }
+
+        public Vector3 PersonalBest { get; }
+
+        public Vector3 GlobalBest {
+            get {
+                var neighbors = _neighbours.Get();
+                return neighbors.Aggregate(neighbors.First(), (min, boid) =>
+                        Vector3.Distance(min.PersonalBest, Target) <
+                        Vector3.Distance(PersonalBest, Target)
+                    ? min
+                    : boid,
+                    boid => boid.PersonalBest);
+            }
+        }
+
         private Transform _worldBounds;
         private float _worldBoundsXMax;
         private float _worldBoundsXMin;
@@ -44,7 +48,7 @@ namespace Boid {
         [SerializeField] private float perception;
 
         [field: SerializeField] private Vector3 Velocity { get; set; }
-
+        
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             
@@ -102,14 +106,16 @@ namespace Boid {
 
         private Vector3 Pathfinding(List<Boid> neighbours) {
             var pathfinding = Vector3.zero;
-
+            var globalBest = GlobalBest;
             foreach (var boid in neighbours) {
                 if (this != boid) {
-                    
+                    var steering = Velocity;
+                    var global = Social * Random.Range(0, 1) * (globalBest - transform.position);
+                    var personal = Cognitive * Random.Range(0, 1) * (PersonalBest - transform.position);
+            
+                    pathfinding = steering + personal + global;
                 }
             }
-            
-            
             return pathfinding;
         }
 
@@ -166,6 +172,8 @@ namespace Boid {
             return separation;
         }
 
+        
+        
         private void Bounds() {
             if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
             if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
