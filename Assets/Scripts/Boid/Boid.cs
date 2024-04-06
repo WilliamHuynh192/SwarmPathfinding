@@ -12,6 +12,7 @@ namespace Boid {
         [field: SerializeField] public float Cohesion { get; set; }
         [field: SerializeField] public float Separation { get; set; }
         [field: SerializeField] public float Pathfinding { get; set; }
+        [field: SerializeField] public float Avoidance { get; set; }
     }
 
     public class Boid : MonoBehaviour {
@@ -25,7 +26,7 @@ namespace Boid {
         [field: SerializeField] public Transform Target { private get; set; }
 
         private Vector3 PersonalBest { get; set; }
-
+        private Vector3 _avoidance;
         private Vector3 GlobalBest {
             get {
                 var neighbors = _neighbours.Get();
@@ -107,10 +108,18 @@ namespace Boid {
             return Separation(neighbours) * Multipliers.Separation + 
                    Alignment(neighbours) * Multipliers.Alignment + 
                    Cohesion(neighbours) * Multipliers.Cohesion + 
-                   Pathfinding(neighbours) * Multipliers.Pathfinding;
+                   Pathfinding() * Multipliers.Pathfinding +
+                   _avoidance * Multipliers.Avoidance;
         }
 
-        private Vector3 Pathfinding(List<Boid> neighbours) {
+        private void FixedUpdate() {
+            _avoidance = Vector3.zero;
+            if (Physics.Raycast(new Ray(transform.position, Velocity.normalized), out var hit, perception, ~LayerMask.NameToLayer("Terrain"))) {
+                _avoidance = hit.normal;
+            }
+        }
+
+        private Vector3 Pathfinding() {
             var global = Social * (GlobalBest - transform.position);
             var personal = Cognitive * (PersonalBest - transform.position);
             
@@ -118,7 +127,7 @@ namespace Boid {
             
             pathfinding -= Velocity;
             pathfinding = pathfinding.normalized * Speed;
-            pathfinding = Vector3.ClampMagnitude(pathfinding, 0.25f);
+            pathfinding = Vector3.ClampMagnitude(pathfinding, .2f);
 
             return pathfinding;
         }
@@ -136,7 +145,7 @@ namespace Boid {
                 alignment /= neighbours.Count - 1;
                 alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
-                alignment = Vector3.ClampMagnitude(alignment, 0.25f);
+                alignment = Vector3.ClampMagnitude(alignment, .2f);
             }
             return alignment;
         }
@@ -153,7 +162,7 @@ namespace Boid {
                 cohesion -= transform.position;
                 cohesion = cohesion.normalized * Speed;
                 cohesion -= Velocity;
-                cohesion = Vector3.ClampMagnitude(cohesion, 0.25f);
+                cohesion = Vector3.ClampMagnitude(cohesion, .2f);
             }
             return cohesion;
         }
@@ -171,7 +180,7 @@ namespace Boid {
                 separation /= neighbours.Count - 1;
                 separation = separation.normalized * Speed;
                 separation -= Velocity;
-                separation = Vector3.ClampMagnitude(separation, 0.25f);
+                separation = Vector3.ClampMagnitude(separation, .2f);
             }
             return separation;
         }
