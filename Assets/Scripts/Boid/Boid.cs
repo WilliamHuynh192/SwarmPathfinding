@@ -19,13 +19,55 @@ namespace Boid {
         [field: SerializeField] public Transform Flock { private get; set; }
         
         private INeighbours _neighbours;
+        
+        private Transform _worldBounds;
+        private float _worldBoundsXMax;
+        private float _worldBoundsXMin;
+        private float _worldBoundsZMax;
+        private float _worldBoundsZMin;
+        private float _worldBoundsYMax;
+        
         [SerializeField] private float perception;
 
         [field: SerializeField] private Vector3 Velocity { get; set; }
 
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
-            Velocity = Random.insideUnitSphere;
+            
+            // Get the boundary around terrain and set the bound
+            _worldBounds = Flock.GetComponent<Flock>().Bound.transform;
+            foreach (Transform plane in _worldBounds)
+            {
+                // Get Max and Min in X Axis
+                if (plane.position.x > _worldBoundsXMax)
+                {
+                    _worldBoundsXMax = plane.transform.position.x;
+                }
+                else if (plane.position.x < _worldBoundsXMin)
+                {
+                    _worldBoundsXMin = plane.transform.position.x;
+                }
+                
+                // Get Max and Min in Z Axis
+                if (plane.transform.position.z > _worldBoundsZMax)
+                {
+                    _worldBoundsZMax = plane.transform.position.z;
+                }
+                else if (plane.position.z < _worldBoundsZMin)
+                {
+                    _worldBoundsZMin = plane.transform.position.z;
+                }
+            }
+
+            // Ceiling
+            _worldBoundsYMax = 40;
+            
+            float randomX = Random.Range(_worldBoundsXMin, _worldBoundsXMax);
+            float randomY = Random.Range(0, _worldBoundsYMax);
+            float randomZ = Random.Range(_worldBoundsZMin, _worldBoundsZMax);
+            
+            Velocity = new Vector3(randomX, randomY, randomZ);
+            
             _neighbours = Flock.GetComponent<INeighbours>();
         }
 
@@ -99,14 +141,12 @@ namespace Boid {
         }
 
         private void Bounds() {
-            var max = 25;
-            if (transform.position.x > max) transform.position = new Vector3(-max, transform.position.y, transform.position.z);
-            if (transform.position.x < -max) transform.position = new Vector3(max, transform.position.y, transform.position.z);
-            if (transform.position.y > max) transform.position = new Vector3(transform.position.x, -max, transform.position.z);
-            if (transform.position.y < -max) transform.position = new Vector3(transform.position.x, max, transform.position.z);
-            if (transform.position.z > max) transform.position = new Vector3(transform.position.x, transform.position.y, -max);
-            if (transform.position.z < -max) transform.position = new Vector3(transform.position.x, transform.position.y, max);
-
+            if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
+            if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
+            if (transform.position.y > _worldBoundsYMax) transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+            if (transform.position.y < 0) transform.position = new Vector3(transform.position.x, _worldBoundsYMax, transform.position.z);
+            if (transform.position.z > _worldBoundsZMax) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMin);
+            if (transform.position.z < _worldBoundsZMin) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMax);
         }
     }
 }
