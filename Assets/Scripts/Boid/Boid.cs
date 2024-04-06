@@ -19,6 +19,13 @@ namespace Boid {
         [field: SerializeField] public Transform Flock { private get; set; }
         
         private INeighbours _neighbours;
+        
+        private Transform _worldBounds;
+        private float _worldBoundsXMax;
+        private float _worldBoundsXMin;
+        private float _worldBoundsZMax = 0;
+        private float _worldBoundsZMin;
+        
         [SerializeField] private float perception;
 
         [field: SerializeField] private Vector3 Velocity { get; set; }
@@ -26,6 +33,32 @@ namespace Boid {
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             Velocity = Flock.position;
+            
+            // Get the boundary around terrain and set the bound
+            _worldBounds = Flock.GetComponent<Flock>().Bounds.transform; ;
+            foreach (Transform plane in _worldBounds)
+            {
+                // Get Max and Min in X Axis
+                if (plane.position.x > _worldBoundsXMax)
+                {
+                    _worldBoundsXMax = plane.transform.position.x;
+                }
+                else
+                {
+                    _worldBoundsXMin = plane.transform.position.x;
+                }
+                
+                // Get Max and Min in Z Axis
+                if (plane.transform.position.z > _worldBoundsZMax)
+                {
+                    _worldBoundsZMax = plane.transform.position.z;
+                }
+                else
+                {
+                    _worldBoundsZMin = plane.transform.position.z;
+                }
+            }
+            
             _neighbours = Flock.GetComponent<INeighbours>();
         }
 
@@ -99,14 +132,13 @@ namespace Boid {
         }
 
         private void Bounds() {
-            var max = 1000;
-            if (transform.position.x > max) transform.position = new Vector3(-max, transform.position.y, transform.position.z);
-            if (transform.position.x < -max) transform.position = new Vector3(max, transform.position.y, transform.position.z);
-            if (transform.position.y > max) transform.position = new Vector3(transform.position.x, -max, transform.position.z);
-            if (transform.position.y < -max) transform.position = new Vector3(transform.position.x, max, transform.position.z);
-            if (transform.position.z > max) transform.position = new Vector3(transform.position.x, transform.position.y, -max);
-            if (transform.position.z < -max) transform.position = new Vector3(transform.position.x, transform.position.y, max);
-
+            // var max = 1000;
+            if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
+            if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
+            //if (transform.position.y > 600) transform.position = new Vector3(transform.position.x, 300, transform.position.z);
+            //if (transform.position.y < 300) transform.position = new Vector3(transform.position.x, 600, transform.position.z);
+            if (transform.position.z > _worldBoundsZMax) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMin);
+            if (transform.position.z < _worldBoundsZMin) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMax);
         }
     }
 }

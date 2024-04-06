@@ -9,7 +9,7 @@ namespace Boid {
     public class Flock : MonoBehaviour, INeighbours {
         [SerializeField] private int count;
         [SerializeField] private GameObject boid;
-        [SerializeField] private GameObject bounds;
+        [field: SerializeField] public GameObject Bounds { get; set; }
 
         [SerializeField] private List<Boid> boids;
         private void Start() {
