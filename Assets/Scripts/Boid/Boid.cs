@@ -24,14 +24,14 @@ namespace Boid {
         [field: SerializeField] public float Social { get; set; } = .2f;
         public Vector3 Target { private get; set; }
 
-        public Vector3 PersonalBest { get; }
+        private Vector3 PersonalBest { get; set; }
 
-        public Vector3 GlobalBest {
+        private Vector3 GlobalBest {
             get {
                 var neighbors = _neighbours.Get();
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
                         Vector3.Distance(min.PersonalBest, Target) <
-                        Vector3.Distance(PersonalBest, Target)
+                        Vector3.Distance(boid.PersonalBest, Target)
                     ? min
                     : boid,
                     boid => boid.PersonalBest);
@@ -47,7 +47,7 @@ namespace Boid {
         
         [SerializeField] private float perception;
 
-        [field: SerializeField] private Vector3 Velocity { get; set; }
+        [field: SerializeField] public Vector3 Velocity { get; private set; }
         
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
@@ -87,13 +87,19 @@ namespace Boid {
             Velocity = new Vector3(randomX, randomY, randomZ);
             
             _neighbours = Flock.GetComponent<INeighbours>();
+            PersonalBest = transform.position;
         }
 
         private void Update() {
 
             Velocity += GetAcceleration(_neighbours.Get(transform.position, perception));
-            Velocity = Vector3.ClampMagnitude(Velocity, Speed );
+            Velocity = Vector3.ClampMagnitude(Velocity, Speed);
             transform.position += Velocity * Time.deltaTime;
+
+            if (Vector3.Distance(transform.position, Target) < Vector3.Distance(PersonalBest, Target)) {
+                PersonalBest = transform.position;
+            }
+            
             Bounds();
         }
 
@@ -105,18 +111,10 @@ namespace Boid {
         }
 
         private Vector3 Pathfinding(List<Boid> neighbours) {
-            var pathfinding = Vector3.zero;
-            var globalBest = GlobalBest;
-            foreach (var boid in neighbours) {
-                if (this != boid) {
-                    var steering = Velocity;
-                    var global = Social * Random.Range(0, 1) * (globalBest - transform.position);
-                    var personal = Cognitive * Random.Range(0, 1) * (PersonalBest - transform.position);
+            var global = Social * (GlobalBest - transform.position);
+            var personal = Cognitive * (PersonalBest - transform.position);
             
-                    pathfinding = steering + personal + global;
-                }
-            }
-            return pathfinding;
+            return personal + global;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
