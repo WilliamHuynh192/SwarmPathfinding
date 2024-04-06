@@ -15,7 +15,7 @@ namespace Boid {
         [SerializeField] private float avgDistance;
 
         [SerializeField] private List<Boid> boids;
-        [SerializeField] private Vector3 target;
+        [SerializeField] private Transform target;
         
         private void Start() {
             foreach (var i in Enumerable.Range(0, count)) {
@@ -35,7 +35,7 @@ namespace Boid {
         }
 
         public void Update() {
-            avgDistance = boids.Average(i => Vector3.Distance(i.transform.position, target));
+            avgDistance = boids.Average(i => Vector3.Distance(i.transform.position, target.position));
         }
     }
 }
