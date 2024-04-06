@@ -22,7 +22,7 @@ namespace Boid {
         private INeighbours _neighbours;
         [field: SerializeField] public float Cognitive { get; set; } = .8f;
         [field: SerializeField] public float Social { get; set; } = .2f;
-        public Vector3 Target { private get; set; }
+        [field: SerializeField] public Transform Target { private get; set; }
 
         private Vector3 PersonalBest { get; set; }
 
@@ -30,8 +30,8 @@ namespace Boid {
             get {
                 var neighbors = _neighbours.Get();
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
-                        Vector3.Distance(min.PersonalBest, Target) <
-                        Vector3.Distance(boid.PersonalBest, Target)
+                        Vector3.Distance(min.PersonalBest, Target.position) <
+                        Vector3.Distance(boid.PersonalBest, Target.position)
                     ? min
                     : boid,
                     boid => boid.PersonalBest);
@@ -96,7 +96,7 @@ namespace Boid {
             Velocity = Vector3.ClampMagnitude(Velocity, Speed);
             transform.position += Velocity * Time.deltaTime;
 
-            if (Vector3.Distance(transform.position, Target) < Vector3.Distance(PersonalBest, Target)) {
+            if (Vector3.Distance(transform.position, Target.position) < Vector3.Distance(PersonalBest, Target.position)) {
                 PersonalBest = transform.position;
             }
             
@@ -114,7 +114,13 @@ namespace Boid {
             var global = Social * (GlobalBest - transform.position);
             var personal = Cognitive * (PersonalBest - transform.position);
             
-            return personal + global;
+            var pathfinding = personal + global;
+            
+            pathfinding -= Velocity;
+            pathfinding = pathfinding.normalized * Speed;
+            pathfinding = Vector3.ClampMagnitude(pathfinding, 0.25f);
+
+            return pathfinding;
         }
 
         private Vector3 Alignment(List<Boid> neighbours) {
@@ -130,7 +136,7 @@ namespace Boid {
                 alignment /= neighbours.Count - 1;
                 alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
-                alignment = Vector3.ClampMagnitude(alignment, 0.33f);
+                alignment = Vector3.ClampMagnitude(alignment, 0.25f);
             }
             return alignment;
         }
@@ -147,7 +153,7 @@ namespace Boid {
                 cohesion -= transform.position;
                 cohesion = cohesion.normalized * Speed;
                 cohesion -= Velocity;
-                cohesion = Vector3.ClampMagnitude(cohesion, 0.33f);
+                cohesion = Vector3.ClampMagnitude(cohesion, 0.25f);
             }
             return cohesion;
         }
@@ -165,7 +171,7 @@ namespace Boid {
                 separation /= neighbours.Count - 1;
                 separation = separation.normalized * Speed;
                 separation -= Velocity;
-                separation = Vector3.ClampMagnitude(separation, 0.33f);
+                separation = Vector3.ClampMagnitude(separation, 0.25f);
             }
             return separation;
         }
