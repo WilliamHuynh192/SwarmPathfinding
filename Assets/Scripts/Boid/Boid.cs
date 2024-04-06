@@ -33,10 +33,9 @@ namespace Boid {
 
         private void Start() {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
-            Velocity = Flock.position;
             
             // Get the boundary around terrain and set the bound
-            _worldBounds = Flock.GetComponent<Flock>().Bounds.transform; ;
+            _worldBounds = Flock.GetComponent<Flock>().Bound.transform; ;
             foreach (Transform plane in _worldBounds)
             {
                 // Get Max and Min in X Axis
@@ -58,13 +57,15 @@ namespace Boid {
                 {
                     _worldBoundsZMin = plane.transform.position.z;
                 }
-                
-                // Get Max in Y Axis
-                if (plane.transform.position.y > _worldBoundsYMax)
-                {
-                    _worldBoundsYMax = plane.transform.position.y;
-                }
             }
+
+            _worldBoundsYMax = 40;
+            
+            float randomX = Random.Range(_worldBoundsXMin, _worldBoundsXMax);
+            float randomY = Random.Range(0, _worldBoundsYMax);
+            float randomZ = Random.Range(_worldBoundsZMin, _worldBoundsZMax);
+            
+            Velocity = new Vector3(randomX, randomY, randomZ);
             
             _neighbours = Flock.GetComponent<INeighbours>();
         }

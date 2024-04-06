@@ -18,7 +18,7 @@ public class Camera : MonoBehaviour
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             Rotate();
-            //Move();
+            Move();
         }
         else
         {
