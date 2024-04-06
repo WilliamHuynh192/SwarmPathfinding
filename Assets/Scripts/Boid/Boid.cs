@@ -35,7 +35,7 @@ namespace Boid {
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             
             // Get the boundary around terrain and set the bound
-            _worldBounds = Flock.GetComponent<Flock>().Bound.transform; ;
+            _worldBounds = Flock.GetComponent<Flock>().Bound.transform;
             foreach (Transform plane in _worldBounds)
             {
                 // Get Max and Min in X Axis
@@ -59,6 +59,7 @@ namespace Boid {
                 }
             }
 
+            // Ceiling
             _worldBoundsYMax = 40;
             
             float randomX = Random.Range(_worldBoundsXMin, _worldBoundsXMax);
@@ -140,7 +141,6 @@ namespace Boid {
         }
 
         private void Bounds() {
-            // var max = 1000;
             if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
             if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
             if (transform.position.y > _worldBoundsYMax) transform.position = new Vector3(transform.position.x, 0, transform.position.z);
