@@ -23,8 +23,9 @@ namespace Boid {
         private Transform _worldBounds;
         private float _worldBoundsXMax;
         private float _worldBoundsXMin;
-        private float _worldBoundsZMax = 0;
+        private float _worldBoundsZMax;
         private float _worldBoundsZMin;
+        private float _worldBoundsYMax;
         
         [SerializeField] private float perception;
 
@@ -43,7 +44,7 @@ namespace Boid {
                 {
                     _worldBoundsXMax = plane.transform.position.x;
                 }
-                else
+                else if (plane.position.x < _worldBoundsXMin)
                 {
                     _worldBoundsXMin = plane.transform.position.x;
                 }
@@ -53,9 +54,15 @@ namespace Boid {
                 {
                     _worldBoundsZMax = plane.transform.position.z;
                 }
-                else
+                else if (plane.position.z < _worldBoundsZMin)
                 {
                     _worldBoundsZMin = plane.transform.position.z;
+                }
+                
+                // Get Max in Y Axis
+                if (plane.transform.position.y > _worldBoundsYMax)
+                {
+                    _worldBoundsYMax = plane.transform.position.y;
                 }
             }
             
@@ -135,8 +142,8 @@ namespace Boid {
             // var max = 1000;
             if (transform.position.x > _worldBoundsXMax) transform.position = new Vector3(_worldBoundsXMin, transform.position.y, transform.position.z);
             if (transform.position.x < _worldBoundsXMin) transform.position = new Vector3(_worldBoundsXMax, transform.position.y, transform.position.z);
-            //if (transform.position.y > 600) transform.position = new Vector3(transform.position.x, 300, transform.position.z);
-            //if (transform.position.y < 300) transform.position = new Vector3(transform.position.x, 600, transform.position.z);
+            if (transform.position.y > _worldBoundsYMax) transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+            if (transform.position.y < 0) transform.position = new Vector3(transform.position.x, _worldBoundsYMax, transform.position.z);
             if (transform.position.z > _worldBoundsZMax) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMin);
             if (transform.position.z < _worldBoundsZMin) transform.position = new Vector3(transform.position.x, transform.position.y, _worldBoundsZMax);
         }
