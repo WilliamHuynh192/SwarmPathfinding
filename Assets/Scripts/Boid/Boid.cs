@@ -22,7 +22,7 @@ namespace Boid {
         private INeighbours _neighbours;
         [field: SerializeField] public float Cognitive { get; set; } = .8f;
         [field: SerializeField] public float Social { get; set; } = .2f;
-        [field: SerializeField] public Transform Target { private get; set; }
+        [field: SerializeField] public Transform Target { get; set; }
 
         private Vector3 PersonalBest { get; set; }
 

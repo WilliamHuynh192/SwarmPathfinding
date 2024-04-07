@@ -16,12 +16,21 @@ namespace Boid {
 
         [SerializeField] private List<Boid> boids;
         [SerializeField] private Transform target;
+        [SerializeField] private Waypoint waypoints;
         
-        private void Start() {
+        private Stack<Transform> _waypointList;
+        
+        private void Start()
+        {
+            _waypointList = waypoints.GetWaypoints();
+            
+            // Get an initial way point for the boids to follow
+            var waypoint = _waypointList.Pop();
+            
             foreach (var i in Enumerable.Range(0, count)) {
                 var instance = Instantiate(boid, Random.insideUnitSphere * 50, Quaternion.identity);
                 instance.GetComponent<Boid>().Flock = transform;
-                instance.GetComponent<Boid>().Target = target;
+                instance.GetComponent<Boid>().Target = waypoint;
                 boids.Add(instance.GetComponent<Boid>());
             }
         }
@@ -35,7 +44,29 @@ namespace Boid {
         }
 
         public void Update() {
-            avgDistance = boids.Average(i => Vector3.Distance(i.transform.position, target.position));
+            avgDistance = boids.Average(i => Vector3.Distance(i.transform.position, i.Target.position));
+            
+            // Iterate through waypoint when average distance is < 1.0, if no waypoint left, come to the final target
+            AssignWayPoint();
+            
+        }
+
+        private void AssignWayPoint()
+        {
+            if (avgDistance < 5.0f && _waypointList.Count > 0)
+            {
+                var nextWaypoint = _waypointList.Pop();
+                foreach (var boid in boids)
+                {
+                    boid.Target = nextWaypoint;
+                }
+            } else if (avgDistance < 5.0f && _waypointList.Count == 0)
+            {
+                foreach (var boid in boids)
+                {
+                    boid.Target = target;
+                }
+            }
         }
     }
 }
