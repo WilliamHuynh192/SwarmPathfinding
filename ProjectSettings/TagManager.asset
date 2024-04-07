@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - boid
+  - WorldBounds
   layers:
   - Default
   - TransparentFX
@@ -12,7 +13,7 @@ TagManager:
   - boid
   - Water
   - UI
-  - 
+  - Terrain
   - 
   - 
   - 

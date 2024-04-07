@@ -3,33 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using Interfaces;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Boid {
     public class Flock : MonoBehaviour, INeighbours {
         [SerializeField] private int count;
         [SerializeField] private GameObject boid;
-        [field: SerializeField] public GameObject Bound { get; set; }
 
         [SerializeField] private float avgDistance;
+        
+        public Vector3 AvgPosition => boids.Aggregate(Vector3.zero, (avg, boid) => avg + boid.transform.position, avg => avg / boids.Count);
 
         [SerializeField] private List<Boid> boids;
         [SerializeField] private Transform target;
+        [SerializeField] private Transform test;
+        public Bounds Bounds => GetComponentInChildren<MeshCollider>().bounds;
         [SerializeField] private Waypoint waypoints;
         
         private Stack<Transform> _waypointList;
         
-        private void Start()
-        {
+
+        private void Start() {
+            Instantiate(test, Bounds.min, Quaternion.identity);
+            Instantiate(test, Bounds.max, Quaternion.identity);
             _waypointList = waypoints.GetWaypoints();
             
             // Get an initial way point for the boids to follow
             var waypoint = _waypointList.Pop();
             
             foreach (var i in Enumerable.Range(0, count)) {
-                var instance = Instantiate(boid, Random.insideUnitSphere * 50, Quaternion.identity);
+                var instance = Instantiate(boid, transform.position + Random.insideUnitSphere * 30, Quaternion.identity);
                 instance.GetComponent<Boid>().Flock = transform;
+                instance.GetComponent<Boid>().ID = i + 1;
                 instance.GetComponent<Boid>().Target = waypoint;
                 boids.Add(instance.GetComponent<Boid>());
             }
