@@ -747,35 +747,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: Flock
       objectReference: {fileID: 0}
-    - target: {fileID: 1591254644789738669, guid: 87303166ee03ffd48ab65547d5cbec3a,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2174578504891917619, guid: 87303166ee03ffd48ab65547d5cbec3a,
-        type: 3}
-      propertyPath: m_Convex
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2174578504891917619, guid: 87303166ee03ffd48ab65547d5cbec3a,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2551754438785502583, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.35
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2551754438785502583, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.35
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2551754438785502583, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.35
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2551754438785502583, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
@@ -827,12 +812,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5859787279524999016, guid: 87303166ee03ffd48ab65547d5cbec3a,
+    - target: {fileID: 2551754438785502583, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
-      propertyPath: test
-      value: 
-      objectReference: {fileID: 2052421445342782626, guid: b32df998d86151342b17148c01f3d454,
-        type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5859787279524999016, guid: 87303166ee03ffd48ab65547d5cbec3a,
         type: 3}
       propertyPath: target

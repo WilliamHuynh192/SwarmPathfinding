@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 80, y: 11, z: 52}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3711307615223411332}
@@ -50,6 +50,7 @@ MonoBehaviour:
   avgDistance: 0
   boids: []
   target: {fileID: 0}
+  test: {fileID: 2052421445342782626, guid: b32df998d86151342b17148c01f3d454, type: 3}
 --- !u!1 &2582084572455994286
 GameObject:
   m_ObjectHideFlags: 0
@@ -106,7 +107,7 @@ MeshCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5

@@ -20,7 +20,7 @@ namespace Boid {
             Instantiate(test, Bounds.min, Quaternion.identity);
             Instantiate(test, Bounds.max, Quaternion.identity);
             foreach (var i in Enumerable.Range(0, count)) {
-                var instance = Instantiate(boid, transform.position + Random.insideUnitSphere * 3, Quaternion.identity);
+                var instance = Instantiate(boid, transform.position + Random.insideUnitSphere * 30, Quaternion.identity);
                 instance.GetComponent<Boid>().Flock = transform;
                 instance.GetComponent<Boid>().Target = target;
                 instance.GetComponent<Boid>().ID = i + 1;
