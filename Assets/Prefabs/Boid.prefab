@@ -49,8 +49,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <Multipliers>k__BackingField:
     <Alignment>k__BackingField: 3
-    <Cohesion>k__BackingField: 2
-    <Separation>k__BackingField: 3
+    <Cohesion>k__BackingField: 4
+    <Separation>k__BackingField: 4
     <Pathfinding>k__BackingField: 2
   <Speed>k__BackingField: 10
   <Flock>k__BackingField: {fileID: 0}

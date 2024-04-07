@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,13 +19,13 @@ public class Camera : MonoBehaviour
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
             Rotate();
-            Move();
         }
         else
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
+        //Move();
     }
 
     void Rotate()

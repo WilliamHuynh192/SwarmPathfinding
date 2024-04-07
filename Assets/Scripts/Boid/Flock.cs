@@ -16,8 +16,14 @@ namespace Boid {
 
         [SerializeField] private List<Boid> boids;
         [SerializeField] private Transform target;
-        
-        private void Start() {
+        [SerializeField] private Waypoint waypoints;
+        private Stack<Transform> _waypointList;
+        private void Start()
+        {
+            _waypointList = waypoints.GetWaypoints();
+            
+            // Get an initial way point for the boids to follow
+            
             foreach (var i in Enumerable.Range(0, count)) {
                 var instance = Instantiate(boid, Random.insideUnitSphere * 50, Quaternion.identity);
                 instance.GetComponent<Boid>().Flock = transform;
@@ -36,6 +42,19 @@ namespace Boid {
 
         public void Update() {
             avgDistance = boids.Average(i => Vector3.Distance(i.transform.position, target.position));
+        }
+
+        private void followWayPoints()
+        {
+            while (_waypointList.Count > 0)
+            {
+                var currentWaypoint = _waypointList.Pop();
+                foreach (var boid in boids)
+                {
+                    boid.Target = currentWaypoint;
+                }
+            }
+            
         }
     }
 }

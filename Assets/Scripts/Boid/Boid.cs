@@ -26,7 +26,7 @@ namespace Boid {
 
         private Vector3 PersonalBest { get; set; }
 
-        private Vector3 GlobalBest {
+        public Vector3 GlobalBest {
             get {
                 var neighbors = _neighbours.Get();
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
