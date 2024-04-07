@@ -51,7 +51,7 @@ MonoBehaviour:
     <Alignment>k__BackingField: 3
     <Cohesion>k__BackingField: 4
     <Separation>k__BackingField: 4
-    <Pathfinding>k__BackingField: 3
+    <Pathfinding>k__BackingField: 2
   <Speed>k__BackingField: 10
   <Flock>k__BackingField: {fileID: 0}
   <Cognitive>k__BackingField: 0.8
