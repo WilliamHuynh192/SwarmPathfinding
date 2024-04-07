@@ -81,7 +81,7 @@ namespace Boid {
                 PersonalBest = transform.position;
             }
             
-            Bounds();
+            // Bounds();
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {

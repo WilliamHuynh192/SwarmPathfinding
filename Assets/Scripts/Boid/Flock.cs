@@ -21,7 +21,8 @@ namespace Boid {
         [SerializeField] private Waypoint waypoints;
         
         private Stack<Transform> _waypointList;
-        
+        public int Count => boids.Count;
+        public Boid this[int i] => boids[i];
 
         private void Start() {
             Instantiate(test, Bounds.min, Quaternion.identity);
