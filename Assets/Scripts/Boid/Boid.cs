@@ -45,6 +45,7 @@ namespace Boid {
         [field: SerializeField] public Vector3 Velocity { get; private set; }
 
         private Bounds _bounds;
+        private bool _collisionBound;
         private void Start() {
             Physics.queriesHitBackfaces = true; // needed for raycasts to hit the inside of colliders
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
@@ -57,18 +58,23 @@ namespace Boid {
         }
 
         private void OnDrawGizmos() {
-            Gizmos.color = Color.black;
-            Gizmos.DrawWireSphere(transform.position, perception);
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
+            // Gizmos.color = Color.black;
+            // Gizmos.DrawWireSphere(transform.position, perception);
+            // Gizmos.color = Color.red;
+            // Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
         }
 
         private void Update() {
             
             transform.position += Velocity * Time.deltaTime;
             // Velocity = Quaternion.FromToRotation(Velocity, GetAcceleration(_neighbours.Get(transform.position, perception))) * Velocity;
-            
-            Velocity += GetAcceleration(_neighbours.Get(transform.position, perception));
+            var acceleration = GetAcceleration(_neighbours.Get(transform.position, perception));
+            if (_collisionBound) {
+                Velocity = acceleration;
+            }
+            else {
+                Velocity += acceleration;
+            }
             Velocity = Velocity.normalized * Speed;
 
             if (Vector3.Distance(transform.position, Target.position) < Vector3.Distance(PersonalBest, Target.position)) {
@@ -79,18 +85,29 @@ namespace Boid {
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
-            return Separation(neighbours) * Multipliers.Separation +
-                   Alignment(neighbours) * Multipliers.Alignment +
-                   Cohesion(neighbours) * Multipliers.Cohesion +
-                   Pathfinding() * Multipliers.Pathfinding;
-            // _avoidance * Multipliers.Avoidance;
+            if (!_collisionBound) {
+                 return Separation(neighbours) * Multipliers.Separation +
+                        Alignment(neighbours) * Multipliers.Alignment +
+                        Cohesion(neighbours) * Multipliers.Cohesion +
+                        Pathfinding() * Multipliers.Pathfinding;
+            }
+
+            return _avoidance * Multipliers.Avoidance;
         }
 
         private void FixedUpdate() {
             _avoidance = Vector3.zero;
-            if (Physics.Raycast(new Ray(transform.position, Velocity.normalized), out var hit, perception, LayerMask.NameToLayer("Terrain"))) {
-
-                _avoidance = ((hit.normal + Velocity) / 2).normalized * Speed;
+            var ray = new Ray(transform.position, Velocity.normalized);
+            Debug.DrawRay(transform.position, Velocity.normalized * perception);
+            if (Physics.Raycast(ray, out var hit, perception, 1 << 6)) {
+                
+                _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
+                // _avoidance -= Velocity;
+                _collisionBound = true;
+                Debug.Log($"{hit.transform.name} hit");
+            }
+            else {
+                _collisionBound = false;
             }
             
             _avoidance = Vector3.ClampMagnitude(_avoidance, .2f);

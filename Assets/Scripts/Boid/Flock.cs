@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Interfaces;
@@ -10,6 +11,8 @@ namespace Boid {
         [SerializeField] private GameObject boid;
 
         [SerializeField] private float avgDistance;
+        
+        public Vector3 AvgPosition => boids.Aggregate(Vector3.zero, (avg, boid) => avg + boid.transform.position, avg => avg / boids.Count);
 
         [SerializeField] private List<Boid> boids;
         [SerializeField] private Transform target;
