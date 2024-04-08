@@ -27,7 +27,7 @@ namespace Boid {
         private Vector3 _avoidance;
         [field: SerializeField] public float Cognitive { get; set; } = .8f;
         [field: SerializeField] public float Social { get; set; } = .2f;
-        private Vector3 Target => TargetProvider.Target;
+        private Vector3? Target => TargetProvider.Target;
 
         private Vector3 PersonalBest { get; set; }
 
@@ -35,8 +35,8 @@ namespace Boid {
             get {
                 var neighbors = Neighbours.Get(transform.position, perception);
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
-                        Vector3.Distance(min.PersonalBest, Target) <
-                        Vector3.Distance(boid.PersonalBest, Target)
+                        Vector3.Distance(min.PersonalBest, Target ?? min.PersonalBest) <
+                        Vector3.Distance(boid.PersonalBest, Target ?? boid.PersonalBest)
                             ? min
                             : boid,
                     boid => boid.PersonalBest);
@@ -62,8 +62,8 @@ namespace Boid {
         private void OnDrawGizmos() {
             // Gizmos.color = Color.black;
             // Gizmos.DrawWireSphere(transform.position, perception);
-            // Gizmos.color = Color.red;
-            // Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
         }
 
         private void Update() {
@@ -78,8 +78,8 @@ namespace Boid {
             }
 
             Velocity = Velocity.normalized * Speed;
-
-            if (Vector3.Distance(transform.position, Target) < Vector3.Distance(PersonalBest, Target)) {
+            
+            if (Target.HasValue && Vector3.Distance(transform.position, Target.Value) < Vector3.Distance(PersonalBest, Target.Value)) {
                 PersonalBest = transform.position;
             }
 
@@ -100,9 +100,10 @@ namespace Boid {
         private void FixedUpdate() {
             _avoidance = Vector3.zero;
             var ray = new Ray(transform.position, Velocity.normalized);
-            Debug.DrawRay(transform.position, Velocity.normalized * perception);
+            // Debug.DrawRay(transform.position, Velocity.normalized * perception);
             if (Physics.Raycast(ray, out var hit, perception, 1 << 6)) {
                 _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
+                // _avoidance = ((hit.point + hit.normal) - transform.position).normalized * Speed;
                 // _avoidance -= Velocity;
                 _collisionBound = true;
                 Debug.Log($"{hit.transform.name} hit");
@@ -115,6 +116,9 @@ namespace Boid {
         }
 
         private Vector3 Pathfinding() {
+            if (!Target.HasValue) {
+                return Vector3.zero;
+            } 
             var global = Social * (GlobalBest - transform.position);
             var personal = Cognitive * (PersonalBest - transform.position);
 
@@ -186,20 +190,5 @@ namespace Boid {
 
             return separation;
         }
-
-        // private void ApplyBounds() {
-        //     if (transform.position.x < Bounds.min.x)
-        //         transform.position = new Vector3(Bounds.max.x, transform.position.y, transform.position.z);
-        //     if (transform.position.x > Bounds.max.x)
-        //         transform.position = new Vector3(Bounds.min.x, transform.position.y, transform.position.z);
-        //     if (transform.position.y < Bounds.min.y)
-        //         transform.position = new Vector3(transform.position.x, Bounds.max.y, transform.position.z);
-        //     if (transform.position.y > Bounds.max.y)
-        //         transform.position = new Vector3(transform.position.x, Bounds.min.y, transform.position.z);
-        //     if (transform.position.z < Bounds.min.z)
-        //         transform.position = new Vector3(transform.position.x, transform.position.y, Bounds.max.z);
-        //     if (transform.position.z > Bounds.max.z)
-        //         transform.position = new Vector3(transform.position.x, transform.position.y, Bounds.min.z);
-        // }
     }
 }

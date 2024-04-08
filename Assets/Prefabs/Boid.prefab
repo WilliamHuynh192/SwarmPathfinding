@@ -49,14 +49,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <ID>k__BackingField: 0
   <Multipliers>k__BackingField:
-    <Alignment>k__BackingField: 1
-    <Cohesion>k__BackingField: 1
-    <Separation>k__BackingField: 1
+    <Alignment>k__BackingField: 2
+    <Cohesion>k__BackingField: 2
+    <Separation>k__BackingField: 3
     <Pathfinding>k__BackingField: 2
     <Avoidance>k__BackingField: 1
   <Speed>k__BackingField: 10
-  <Cognitive>k__BackingField: 0.8
-  <Social>k__BackingField: 0.2
+  <Cognitive>k__BackingField: 0.2
+  <Social>k__BackingField: 0.8
   perception: 5
   <Velocity>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!33 &2777642928430256636
