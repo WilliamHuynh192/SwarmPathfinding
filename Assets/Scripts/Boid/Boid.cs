@@ -74,7 +74,7 @@ namespace Boid {
                 Velocity = acceleration;
             }
             else {
-                Velocity += acceleration;
+                Velocity += Vector3.Lerp(Velocity, acceleration, .25f);
             }
 
             Velocity = Velocity.normalized * Speed;
