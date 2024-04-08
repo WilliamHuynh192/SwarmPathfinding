@@ -33,7 +33,7 @@ namespace Boid {
 
         private Vector3 GlobalBest {
             get {
-                var neighbors = Neighbours.Get(transform.position, perception);
+                var neighbors = Neighbours.Get();
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
                         Vector3.Distance(min.PersonalBest, Target ?? min.PersonalBest) <
                         Vector3.Distance(boid.PersonalBest, Target ?? boid.PersonalBest)
@@ -67,6 +67,7 @@ namespace Boid {
         }
 
         private void Update() {
+            if (!Target.HasValue) return;
             transform.position += Velocity * Time.deltaTime;
             // Velocity = Quaternion.FromToRotation(Velocity, GetAcceleration(_neighbours.Get(transform.position, perception))) * Velocity;
             var acceleration = GetAcceleration(Neighbours.Get(transform.position, perception));
@@ -102,7 +103,8 @@ namespace Boid {
             var ray = new Ray(transform.position, Velocity.normalized);
             // Debug.DrawRay(transform.position, Velocity.normalized * perception);
             if (Physics.Raycast(ray, out var hit, perception, 1 << 6)) {
-                _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
+                // _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
+                _avoidance = Vector3.ProjectOnPlane(Velocity, hit.normal).normalized * Speed;
                 // _avoidance = ((hit.point + hit.normal) - transform.position).normalized * Speed;
                 // _avoidance -= Velocity;
                 _collisionBound = true;
