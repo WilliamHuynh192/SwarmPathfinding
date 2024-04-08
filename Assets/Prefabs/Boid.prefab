@@ -55,8 +55,9 @@ MonoBehaviour:
     <Pathfinding>k__BackingField: 2
     <Avoidance>k__BackingField: 1
   <Speed>k__BackingField: 10
-  <Cognitive>k__BackingField: 0.2
-  <Social>k__BackingField: 0.8
+  <Cognitive>k__BackingField: 0.5
+  <Social>k__BackingField: 0.5
+  technique: 0
   perception: 5
   <Velocity>k__BackingField: {x: 0, y: 0, z: 0}
 --- !u!33 &2777642928430256636

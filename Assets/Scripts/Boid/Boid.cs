@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Interfaces;
 using UnityEngine;
-using Waypoints;
 using Random = UnityEngine.Random;
 
 namespace Boid {
@@ -27,13 +26,18 @@ namespace Boid {
         private Vector3 _avoidance;
         [field: SerializeField] public float Cognitive { get; set; } = .8f;
         [field: SerializeField] public float Social { get; set; } = .2f;
+        [SerializeField] private PsopType technique = PsopType.Individual;
         private Vector3? Target => TargetProvider.Target;
 
         private Vector3 PersonalBest { get; set; }
 
         private Vector3 GlobalBest {
             get {
-                var neighbors = Neighbours.Get();
+                var neighbors = technique switch {
+                    PsopType.Global => Neighbours.Get(),
+                    PsopType.Individual => Neighbours.Get(transform.position, perception),
+                    _ => new()
+                };
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
                         Vector3.Distance(min.PersonalBest, Target ?? min.PersonalBest) <
                         Vector3.Distance(boid.PersonalBest, Target ?? boid.PersonalBest)
@@ -49,19 +53,19 @@ namespace Boid {
         
         private bool _collisionBound;
 
+        private enum PsopType {
+            Individual,
+            Global
+        }
+        
         private void Start() {
             Physics.queriesHitBackfaces = true; // needed for raycasts to hit the inside of colliders
-            // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             name = $"Boid {ID}";
             Velocity = Random.insideUnitSphere * Speed;
-
-        
             PersonalBest = transform.position;
         }
 
         private void OnDrawGizmos() {
-            // Gizmos.color = Color.black;
-            // Gizmos.DrawWireSphere(transform.position, perception);
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
         }
@@ -69,7 +73,6 @@ namespace Boid {
         private void Update() {
             if (!Target.HasValue) return;
             transform.position += Velocity * Time.deltaTime;
-            // Velocity = Quaternion.FromToRotation(Velocity, GetAcceleration(_neighbours.Get(transform.position, perception))) * Velocity;
             var acceleration = GetAcceleration(Neighbours.Get(transform.position, perception));
             if (_collisionBound) {
                 Velocity = acceleration;
@@ -83,8 +86,6 @@ namespace Boid {
             if (Target.HasValue && Vector3.Distance(transform.position, Target.Value) < Vector3.Distance(PersonalBest, Target.Value)) {
                 PersonalBest = transform.position;
             }
-
-            // Bounds();
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
@@ -101,12 +102,8 @@ namespace Boid {
         private void FixedUpdate() {
             _avoidance = Vector3.zero;
             var ray = new Ray(transform.position, Velocity.normalized);
-            // Debug.DrawRay(transform.position, Velocity.normalized * perception);
-            if (Physics.Raycast(ray, out var hit, perception, 1 << 6)) {
-                // _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
+            if (Physics.Raycast(ray, out var hit, perception, 1 << LayerMask.NameToLayer("Terrain"))) {
                 _avoidance = Vector3.ProjectOnPlane(Velocity, hit.normal).normalized * Speed;
-                // _avoidance = ((hit.point + hit.normal) - transform.position).normalized * Speed;
-                // _avoidance -= Velocity;
                 _collisionBound = true;
                 Debug.Log($"{hit.transform.name} hit");
             }
@@ -178,7 +175,6 @@ namespace Boid {
                     var offset = transform.position - boid.transform.position;
                     offset /= offset.sqrMagnitude;
                     separation += offset;
-                    // separation += boid.transform.position - separation;
                 }
             }
 
@@ -187,7 +183,6 @@ namespace Boid {
                 separation = separation.normalized * Speed;
                 separation -= Velocity;
                 separation = Vector3.ClampMagnitude(separation, .2f);
-                // separation = transform.position - separation;
             }
 
             return separation;

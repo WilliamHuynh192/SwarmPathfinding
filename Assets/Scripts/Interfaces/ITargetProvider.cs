@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Waypoints;
 
 namespace Interfaces {
     public interface ITargetProvider {

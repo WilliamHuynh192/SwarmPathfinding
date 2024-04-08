@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Interfaces;
 using UnityEngine;
-using Waypoints;
 using Random = UnityEngine.Random;
 
 namespace Boid {
@@ -14,7 +12,7 @@ namespace Boid {
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private float spawnRadius;
         [SerializeField] private Transform targetProvider;
-        public Vector3 AvgPosition => boids.Aggregate(Vector3.zero, (avg, boid) => avg + boid.transform.position, avg => avg / boids.Count);
+        public Vector3 AvgPosition => boids.Aggregate(Vector3.zero, (avg, cur) => avg + cur.transform.position, avg => avg / boids.Count);
         public int Count => boids.Count;
         public Boid this[int i] => boids[i];
 
