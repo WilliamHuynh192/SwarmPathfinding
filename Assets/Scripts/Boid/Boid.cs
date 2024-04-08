@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Interfaces;
 using UnityEngine;
+using Waypoints;
 using Random = UnityEngine.Random;
 
 namespace Boid {
@@ -19,23 +20,25 @@ namespace Boid {
         [field: SerializeField] public int ID { private get; set; }
         [field: SerializeField] public Multipliers Multipliers { private get; set; }
         [field: SerializeField] public float Speed { private get; set; }
-        [field: SerializeField] public Transform Flock { private get; set; }
+
+        public INeighbours Neighbours { set; private get; }
+        public ITargetProvider TargetProvider { set; private get; }
         
-        private INeighbours _neighbours;
         private Vector3 _avoidance;
         [field: SerializeField] public float Cognitive { get; set; } = .8f;
         [field: SerializeField] public float Social { get; set; } = .2f;
-        [field: SerializeField] public Transform Target { get; set; }
+        private Vector3 Target => TargetProvider.Target;
 
         private Vector3 PersonalBest { get; set; }
+
         private Vector3 GlobalBest {
             get {
-                var neighbors = _neighbours.Get(transform.position, perception);
+                var neighbors = Neighbours.Get(transform.position, perception);
                 return neighbors.Aggregate(neighbors.First(), (min, boid) =>
-                        Vector3.Distance(min.PersonalBest, Target.position) <
-                        Vector3.Distance(boid.PersonalBest, Target.position)
-                    ? min
-                    : boid,
+                        Vector3.Distance(min.PersonalBest, Target) <
+                        Vector3.Distance(boid.PersonalBest, Target)
+                            ? min
+                            : boid,
                     boid => boid.PersonalBest);
             }
         }
@@ -43,17 +46,16 @@ namespace Boid {
         [SerializeField] private float perception;
 
         [field: SerializeField] public Vector3 Velocity { get; private set; }
-
-        private Bounds _bounds;
+        
         private bool _collisionBound;
+
         private void Start() {
             Physics.queriesHitBackfaces = true; // needed for raycasts to hit the inside of colliders
             // Multipliers = new Multipliers { Alignment = 1, Separation = 1, Cohesion = 1 };
             name = $"Boid {ID}";
             Velocity = Random.insideUnitSphere * Speed;
-            
-            _neighbours = Flock.GetComponent<INeighbours>();
-            _bounds = Flock.GetComponent<Flock>().Bounds;
+
+        
             PersonalBest = transform.position;
         }
 
@@ -65,31 +67,31 @@ namespace Boid {
         }
 
         private void Update() {
-            
             transform.position += Velocity * Time.deltaTime;
             // Velocity = Quaternion.FromToRotation(Velocity, GetAcceleration(_neighbours.Get(transform.position, perception))) * Velocity;
-            var acceleration = GetAcceleration(_neighbours.Get(transform.position, perception));
+            var acceleration = GetAcceleration(Neighbours.Get(transform.position, perception));
             if (_collisionBound) {
                 Velocity = acceleration;
             }
             else {
                 Velocity += acceleration;
             }
+
             Velocity = Velocity.normalized * Speed;
 
-            if (Vector3.Distance(transform.position, Target.position) < Vector3.Distance(PersonalBest, Target.position)) {
+            if (Vector3.Distance(transform.position, Target) < Vector3.Distance(PersonalBest, Target)) {
                 PersonalBest = transform.position;
             }
-            
+
             // Bounds();
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
             if (!_collisionBound) {
-                 return Separation(neighbours) * Multipliers.Separation +
-                        Alignment(neighbours) * Multipliers.Alignment +
-                        Cohesion(neighbours) * Multipliers.Cohesion +
-                        Pathfinding() * Multipliers.Pathfinding;
+                return Separation(neighbours) * Multipliers.Separation +
+                       Alignment(neighbours) * Multipliers.Alignment +
+                       Cohesion(neighbours) * Multipliers.Cohesion +
+                       Pathfinding() * Multipliers.Pathfinding;
             }
 
             return _avoidance * Multipliers.Avoidance;
@@ -100,7 +102,6 @@ namespace Boid {
             var ray = new Ray(transform.position, Velocity.normalized);
             Debug.DrawRay(transform.position, Velocity.normalized * perception);
             if (Physics.Raycast(ray, out var hit, perception, 1 << 6)) {
-                
                 _avoidance = Vector3.Reflect(Velocity, hit.normal).normalized * Speed;
                 // _avoidance -= Velocity;
                 _collisionBound = true;
@@ -109,16 +110,16 @@ namespace Boid {
             else {
                 _collisionBound = false;
             }
-            
+
             _avoidance = Vector3.ClampMagnitude(_avoidance, .2f);
         }
 
         private Vector3 Pathfinding() {
             var global = Social * (GlobalBest - transform.position);
             var personal = Cognitive * (PersonalBest - transform.position);
-            
+
             var pathfinding = personal + global;
-            
+
             pathfinding -= Velocity;
             pathfinding = pathfinding.normalized * Speed;
             pathfinding = Vector3.ClampMagnitude(pathfinding, .2f);
@@ -140,7 +141,6 @@ namespace Boid {
                 alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
                 alignment = Vector3.ClampMagnitude(alignment, .2f);
-                
             }
 
             return alignment.normalized;
@@ -153,6 +153,7 @@ namespace Boid {
                     cohesion += boid.transform.position;
                 }
             }
+
             if (neighbours.Count - 1 > 0) {
                 cohesion /= neighbours.Count - 1;
                 cohesion = cohesion - transform.position;
@@ -174,7 +175,7 @@ namespace Boid {
                     // separation += boid.transform.position - separation;
                 }
             }
-            
+
             if (neighbours.Count - 1 > 0) {
                 separation /= neighbours.Count - 1;
                 separation = separation.normalized * Speed;
@@ -185,14 +186,20 @@ namespace Boid {
 
             return separation;
         }
-        
-        private void Bounds() {
-            if (transform.position.x < _bounds.min.x) transform.position = new Vector3(_bounds.max.x, transform.position.y, transform.position.z);
-            if (transform.position.x > _bounds.max.x) transform.position = new Vector3(_bounds.min.x, transform.position.y, transform.position.z);
-            if (transform.position.y < _bounds.min.y) transform.position = new Vector3(transform.position.x, _bounds.max.y, transform.position.z);
-            if (transform.position.y > _bounds.max.y) transform.position = new Vector3(transform.position.x, _bounds.min.y, transform.position.z);
-            if (transform.position.z < _bounds.min.z) transform.position = new Vector3(transform.position.x, transform.position.y, _bounds.max.z);
-            if (transform.position.z > _bounds.max.z) transform.position = new Vector3(transform.position.x, transform.position.y, _bounds.min.z);
-        }
+
+        // private void ApplyBounds() {
+        //     if (transform.position.x < Bounds.min.x)
+        //         transform.position = new Vector3(Bounds.max.x, transform.position.y, transform.position.z);
+        //     if (transform.position.x > Bounds.max.x)
+        //         transform.position = new Vector3(Bounds.min.x, transform.position.y, transform.position.z);
+        //     if (transform.position.y < Bounds.min.y)
+        //         transform.position = new Vector3(transform.position.x, Bounds.max.y, transform.position.z);
+        //     if (transform.position.y > Bounds.max.y)
+        //         transform.position = new Vector3(transform.position.x, Bounds.min.y, transform.position.z);
+        //     if (transform.position.z < Bounds.min.z)
+        //         transform.position = new Vector3(transform.position.x, transform.position.y, Bounds.max.z);
+        //     if (transform.position.z > Bounds.max.z)
+        //         transform.position = new Vector3(transform.position.x, transform.position.y, Bounds.min.z);
+        // }
     }
 }
