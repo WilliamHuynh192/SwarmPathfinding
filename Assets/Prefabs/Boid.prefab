@@ -50,10 +50,10 @@ MonoBehaviour:
   <ID>k__BackingField: 0
   <Multipliers>k__BackingField:
     <Alignment>k__BackingField: 2
-    <Cohesion>k__BackingField: 2
+    <Cohesion>k__BackingField: 1
     <Separation>k__BackingField: 3
-    <Pathfinding>k__BackingField: 2
-    <Avoidance>k__BackingField: 1
+    <Pathfinding>k__BackingField: 3
+    <Avoidance>k__BackingField: 2
   <Speed>k__BackingField: 10
   <Cognitive>k__BackingField: 0.5
   <Social>k__BackingField: 0.5
