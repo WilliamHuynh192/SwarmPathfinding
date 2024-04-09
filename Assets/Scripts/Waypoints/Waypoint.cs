@@ -1,3 +1,4 @@
+using System;
 using Interfaces;
 using UnityEngine;
 
@@ -8,6 +9,13 @@ namespace Waypoints {
         public ITargetProvider TargetProvider { set; private get; }
         private Collider[] _boids;
         public bool IsActive { private get; set; }
+
+        private void OnDrawGizmos() {
+            if (IsActive) {
+                Gizmos.color = Color.green;
+                Gizmos.DrawWireSphere(transform.position, radius);
+            }
+        }
 
         private void Start() {
             _boids = new Collider[numBoids];

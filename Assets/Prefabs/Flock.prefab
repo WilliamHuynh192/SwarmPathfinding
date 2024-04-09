@@ -80,9 +80,9 @@ MonoBehaviour:
   count: 100
   boid: {fileID: 2326342615714041732, guid: 576b68c70ea51904398e856b15eb4752, type: 3}
   boids: []
-  test: {fileID: 2052421445342782626, guid: b32df998d86151342b17148c01f3d454, type: 3}
-  spawnPoint: {fileID: 0}
+  spawnPoint: {fileID: 3123388293186234022}
   spawnRadius: 0
+  targetProvider: {fileID: 0}
 --- !u!1 &2582084572455994286
 GameObject:
   m_ObjectHideFlags: 0

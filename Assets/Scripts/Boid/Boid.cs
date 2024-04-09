@@ -68,18 +68,20 @@ namespace Boid {
         private void OnDrawGizmos() {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, transform.position + Velocity.normalized * 2);
+            // Gizmos.color = Color.white;
+            // Gizmos.DrawWireSphere(transform.position, perception);
         }
 
         private void Update() {
             if (!Target.HasValue) return;
             transform.position += Velocity * Time.deltaTime;
             var acceleration = GetAcceleration(Neighbours.Get(transform.position, perception));
-            if (_collisionBound) {
-                Velocity = acceleration;
-            }
-            else {
+            // if (_collisionBound) {
+                // Velocity = acceleration;
+            // }
+            // else {
                 Velocity += Vector3.Lerp(Velocity, acceleration, .25f);
-            }
+            // }
 
             Velocity = Velocity.normalized * Speed;
             
@@ -89,29 +91,28 @@ namespace Boid {
         }
 
         private Vector3 GetAcceleration(List<Boid> neighbours) {
-            if (!_collisionBound) {
-                return Separation(neighbours) * Multipliers.Separation +
-                       Alignment(neighbours) * Multipliers.Alignment +
-                       Cohesion(neighbours) * Multipliers.Cohesion +
-                       Pathfinding() * Multipliers.Pathfinding;
-            }
-
-            return _avoidance * Multipliers.Avoidance;
+            return Separation(neighbours) * Multipliers.Separation +
+                   Alignment(neighbours) * Multipliers.Alignment +
+                   Cohesion(neighbours) * Multipliers.Cohesion +
+                   Pathfinding() * Multipliers.Pathfinding + _avoidance * Multipliers.Avoidance;
         }
 
         private void FixedUpdate() {
             _avoidance = Vector3.zero;
             var ray = new Ray(transform.position, Velocity.normalized);
             if (Physics.Raycast(ray, out var hit, perception, 1 << LayerMask.NameToLayer("Terrain"))) {
-                _avoidance = Vector3.ProjectOnPlane(Velocity, hit.normal).normalized * Speed;
+                _avoidance = Vector3.ProjectOnPlane(Velocity, hit.normal).normalized;
+                // _avoidance = Vector3.Reflect(Velocity, hit.normal + (Random.insideUnitSphere / 3));
+
+                _avoidance = _avoidance.normalized * Speed;
+                _avoidance -= Velocity;
+                // _avoidance = _avoidance.normalized;
                 _collisionBound = true;
-                Debug.Log($"{hit.transform.name} hit");
             }
             else {
                 _collisionBound = false;
             }
-
-            _avoidance = Vector3.ClampMagnitude(_avoidance, .2f);
+            
         }
 
         private Vector3 Pathfinding() {
@@ -123,9 +124,9 @@ namespace Boid {
 
             var pathfinding = personal + global;
 
+            pathfinding = pathfinding.normalized * Speed;
             pathfinding -= Velocity;
-            // pathfinding = pathfinding.normalized * Speed;
-            pathfinding = Vector3.ClampMagnitude(pathfinding, .2f);
+            pathfinding = Vector3.ClampMagnitude(pathfinding, .25f);
 
             return pathfinding;
         }
@@ -141,9 +142,10 @@ namespace Boid {
 
             if (neighbours.Count - 1 > 0) {
                 alignment /= neighbours.Count - 1;
-                // alignment = alignment.normalized * Speed;
+                alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
-                alignment = Vector3.ClampMagnitude(alignment, .2f);
+                // alignment = alignment.normalized;
+                alignment = Vector3.ClampMagnitude(alignment, .25f);
             }
 
             return alignment.normalized;
@@ -160,9 +162,10 @@ namespace Boid {
             if (neighbours.Count - 1 > 0) {
                 cohesion /= neighbours.Count - 1;
                 cohesion = cohesion - transform.position;
-                // cohesion = cohesion.normalized * Speed;
+                cohesion = cohesion.normalized * Speed;
                 cohesion -= Velocity;
-                cohesion = Vector3.ClampMagnitude(cohesion, .2f);
+                // cohesion = cohesion.normalized;
+                cohesion = Vector3.ClampMagnitude(cohesion, .25f);
             }
 
             return cohesion;
@@ -181,10 +184,11 @@ namespace Boid {
             if (neighbours.Count - 1 > 0) {
                 separation /= neighbours.Count - 1;
                 // separation = separation.normalized * Speed;
+                separation = separation.normalized * Speed;
                 separation -= Velocity;
-                separation = Vector3.ClampMagnitude(separation, .2f);
+                separation = Vector3.ClampMagnitude(separation, .25f);
             }
-
+            
             return separation;
         }
     }
