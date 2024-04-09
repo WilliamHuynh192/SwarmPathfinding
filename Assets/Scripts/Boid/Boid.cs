@@ -124,7 +124,7 @@ namespace Boid {
             var pathfinding = personal + global;
 
             pathfinding -= Velocity;
-            pathfinding = pathfinding.normalized * Speed;
+            // pathfinding = pathfinding.normalized * Speed;
             pathfinding = Vector3.ClampMagnitude(pathfinding, .2f);
 
             return pathfinding;
@@ -141,7 +141,7 @@ namespace Boid {
 
             if (neighbours.Count - 1 > 0) {
                 alignment /= neighbours.Count - 1;
-                alignment = alignment.normalized * Speed;
+                // alignment = alignment.normalized * Speed;
                 alignment -= Velocity;
                 alignment = Vector3.ClampMagnitude(alignment, .2f);
             }
@@ -160,7 +160,7 @@ namespace Boid {
             if (neighbours.Count - 1 > 0) {
                 cohesion /= neighbours.Count - 1;
                 cohesion = cohesion - transform.position;
-                cohesion = cohesion.normalized * Speed;
+                // cohesion = cohesion.normalized * Speed;
                 cohesion -= Velocity;
                 cohesion = Vector3.ClampMagnitude(cohesion, .2f);
             }
@@ -180,7 +180,7 @@ namespace Boid {
 
             if (neighbours.Count - 1 > 0) {
                 separation /= neighbours.Count - 1;
-                separation = separation.normalized * Speed;
+                // separation = separation.normalized * Speed;
                 separation -= Velocity;
                 separation = Vector3.ClampMagnitude(separation, .2f);
             }
