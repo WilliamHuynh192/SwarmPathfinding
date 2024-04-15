@@ -15,3 +15,4 @@
  2. Under the Prefabs folder there will be a Boid prefab, click on it.
  3. In the inspector window, there will be a script component named `Boid`.
  4. Change these variables and restart the simulation by clicking play. Note that you must restart for the changes to take effect. For testing the social and cognitive variables were varied from 0 to 1. Ensuring they both add up to 1.
+ 5. The Technique variable can be used to switch between global and individual data for the PSOP algorithm.
